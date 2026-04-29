@@ -19,16 +19,12 @@ const messages = new Messages({
   network: network
 });
 const blockHash = {
-  'livenet': '000000000000000013413cf2536b491bf0988f52e90c476ffeb701c8bfdb1db9',
-  'testnet': '0000000058cc069d964711cd25083c0a709f4df2b34c8ff9302ce71fe5b45786'
+  'livenet': 'e6a483c6856aecab01e4965fa86a9bc00917e9e8fe2e53bc29fa480f54d48bb1',
+  'testnet': '22768ded5ba4ba57035c4f058c76cb2f014d509ab01e2a5e683c86a3a2bff970'
 };
 const stopBlock = {
-  'livenet': '00000000000000000b539ef570128acb953af3dbcfc19dd8e6066949672311a1',
-  'testnet': '00000000d0bc4271bcefaa7eb25000e345910ba16b91eb375cd944b68624de9f'
-};
-const txHash = {
-  'livenet': '22231e8219a0617a0ded618b5dc713fdf9b0db8ebd5bb3322d3011a703119d3b',
-  'testnet': '22231e8219a0617a0ded618b5dc713fdf9b0db8ebd5bb3322d3011a703119d3b'
+  'livenet': 'd0a237eec8dfbc52b455cf421c319edb090819075901676038be911a17798574',
+  'testnet': '8187e075e43082163adc5e515cef3145eac45bf56d0e77f4a92bf11fa5c947b1'
 };
 
 // These tests require a running bitcoind instance
@@ -86,7 +82,7 @@ describe('Integration with ' + network.name + ' bitcoind', function() {
   it('handles addr', function(cb) {
     connect(function(peer) {
       peer.once('addr', function(message) {
-        for (const address of message.addresshes) {
+        for (const address of message.addresses) {
           (address.time instanceof Date).should.equal(true);
           should.exist(address.ip);
           (address.services instanceof BN).should.equal(true);

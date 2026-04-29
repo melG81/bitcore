@@ -26,10 +26,6 @@ const stopBlock = {
   'livenet': '00000000000000000b539ef570128acb953af3dbcfc19dd8e6066949672311a1',
   'testnet': '00000000d0bc4271bcefaa7eb25000e345910ba16b91eb375cd944b68624de9f'
 };
-const txHash = {
-  'livenet': '22231e8219a0617a0ded618b5dc713fdf9b0db8ebd5bb3322d3011a703119d3b',
-  'testnet': '22231e8219a0617a0ded618b5dc713fdf9b0db8ebd5bb3322d3011a703119d3b'
-};
 
 // These tests require a running bitcoind instance
 describe('Integration with ' + network.name + ' bitcoind', function() {
