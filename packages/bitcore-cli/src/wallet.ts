@@ -294,8 +294,9 @@ export class Wallet implements IWallet {
   async export(args: {
     filename: string;
     exportPassword?: string;
+    readOnly?: boolean;
   }) {
-    const { filename, exportPassword } = args;
+    const { filename, exportPassword, readOnly } = args;
     if (!this.#walletData) {
       throw new Error('No wallet data to save. Wallet not created or loaded');
     }
@@ -303,15 +304,15 @@ export class Wallet implements IWallet {
     let key;
     if (this.#walletData.key instanceof TssKey.TssKey) {
       key = new TssKey.TssKey(this.#walletData.key.toObj());
-    } else {
+    } else if (!readOnly) {
       key = new Key({ seedType: 'object', seedData: this.#walletData.key.toObj() });
     }
-    if (key.isPrivKeyEncrypted() || key.isKeyChainEncrypted?.()) {
+    if (key && (key.isPrivKeyEncrypted() || key.isKeyChainEncrypted?.())) {
       const walletPassword = await getPassword('Wallet password:');
       key.decrypt(walletPassword);
     }
     
-    let data: any = { key: key.toObj(), credentials: this.#walletData.credentials.toObj() };
+    let data: any = { key: key?.toObj(), credentials: this.#walletData.credentials.toObj() };
     if (exportPassword != null) {
       data = Encryption.encryptWithPassword(data, exportPassword, WALLET_ENCRYPTION_OPTS);
     }
