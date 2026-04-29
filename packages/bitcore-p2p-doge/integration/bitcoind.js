@@ -39,7 +39,7 @@ describe('Integration with ' + network.name + ' bitcoind', function() {
     const peer = new Peer(opts);
     peer.once('version', function(m) {
       m.version.should.be.above(70000);
-      m.services.toString().should.equal('1');
+      m.services.and(new BN(1)).toString().should.equal('1');
       Math.abs(new Date() - m.timestamp).should.be.below(10000); // less than 10 seconds of time difference
       m.nonce.length.should.equal(8);
       m.startHeight.should.be.above(300000);
