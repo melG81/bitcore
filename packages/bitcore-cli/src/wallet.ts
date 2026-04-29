@@ -222,7 +222,7 @@ export class Wallet implements IWallet {
     walletData = (walletData as WalletData);
     
 
-    const instantiateKey = () => {
+    const instantiateKey = (walletData: WalletData) => {
       if (!walletData.key) {
         return undefined; // read-only wallet
       }
@@ -240,11 +240,11 @@ export class Wallet implements IWallet {
       const imported = Client.upgradeCredentialsV1(walletData);
       this.client.fromString(JSON.stringify(imported.credentials));
 
-      key = instantiateKey();
+      key = instantiateKey(walletData);
     } catch {
       try {
         this.client.fromObj(walletData.credentials);
-        key = instantiateKey();
+        key = instantiateKey(walletData);
       } catch (e) {
         Utils.die('Corrupt wallet file:' + (_verbose && e.stack ? e.stack : e));
       }
@@ -273,7 +273,7 @@ export class Wallet implements IWallet {
       if (!this.#walletData) {
         throw new Error('No wallet data to save. Wallet not created or loaded');
       }
-      let data: WalletData | EncryptionTypes.IEncrypted = { key: this.#walletData.key.toObj(), credentials: this.#walletData.credentials.toObj() };
+      let data: WalletData | EncryptionTypes.IEncrypted = { key: this.#walletData.key?.toObj(), credentials: this.#walletData.credentials.toObj() };
       if (encryptAll) {
         const password = await getPassword('Enter password to encrypt:', { minLength: 6 });
         await prompt.password({
@@ -331,13 +331,15 @@ export class Wallet implements IWallet {
     let data: any = await fs.promises.readFile(filename, 'utf8');
     data = Encryption.decryptWithPassword(data, importPassword);
     data = Utils.jsonParseWithBuffer(data);
-    if (data.key.keychain) {
-      data.key = new TssKey.TssKey(data.key);
-    } else {
-      data.key = new Key({ seedType: 'object', seedData: data.key });
+    if (data.key) { // no data.key means it's a readonly wallet
+      if (data.key.keychain) {
+        data.key = new TssKey.TssKey(data.key);
+      } else {
+        data.key = new Key({ seedType: 'object', seedData: data.key });
+      }
+      const walletPassword = await getPassword('Set a wallet password:', { minLength: 6, hidden: false });
+      data.key.encrypt(walletPassword);
     }
-    const walletPassword = await getPassword('Wallet password:', { minLength: 6, hidden: false });
-    data.key.encrypt(walletPassword);
     this.#walletData = {
       key: data.key,
       credentials: Credentials.fromObj(data.credentials)
