@@ -302,10 +302,12 @@ export class Wallet implements IWallet {
     }
     
     let key;
-    if (this.#walletData.key instanceof TssKey.TssKey) {
-      key = new TssKey.TssKey(this.#walletData.key.toObj());
-    } else if (!readOnly) {
-      key = new Key({ seedType: 'object', seedData: this.#walletData.key.toObj() });
+    if (!readOnly) {
+      if (this.#walletData.key instanceof TssKey.TssKey) {
+        key = new TssKey.TssKey(this.#walletData.key.toObj());
+      } else {
+        key = new Key({ seedType: 'object', seedData: this.#walletData.key.toObj() });
+      }
     }
     if (key && (key.isPrivKeyEncrypted() || key.isKeyChainEncrypted?.())) {
       const walletPassword = await getPassword('Wallet password:');
