@@ -301,17 +301,18 @@ export class Wallet implements IWallet {
       throw new Error('No wallet data to save. Wallet not created or loaded');
     }
     
-    let key;
+    let key: TssKey.TssKey | KeyType | undefined;
     if (!readOnly) {
       if (this.#walletData.key instanceof TssKey.TssKey) {
         key = new TssKey.TssKey(this.#walletData.key.toObj());
       } else {
         key = new Key({ seedType: 'object', seedData: this.#walletData.key.toObj() });
       }
-    }
-    if (key && (key.isPrivKeyEncrypted() || key.isKeyChainEncrypted?.())) {
-      const walletPassword = await getPassword('Wallet password:');
-      key.decrypt(walletPassword);
+
+      if (key.isPrivKeyEncrypted() || (key as TssKey.TssKey).isKeyChainEncrypted?.()) {
+        const walletPassword = await getPassword('Wallet password:');
+        key.decrypt(walletPassword);
+      }
     }
     
     let data: any = { key: key?.toObj(), credentials: this.#walletData.credentials.toObj() };
